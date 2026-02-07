@@ -4,10 +4,7 @@ const electionRoutes = require("./routes");
 
 const app = express();
 
-// Enable CORS
 app.use(cors());
-
-// Routes
 app.use("/election", electionRoutes);
 
 app.listen(3003, () => {

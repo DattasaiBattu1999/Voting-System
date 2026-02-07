@@ -8,10 +8,11 @@
 <body>
   <h2>Online Voting System</h2>
 
-  <input id="nid" placeholder="National ID">
-  <input id="pwd" type="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-
+  <form onsubmit="login(event)">
+  <input id="nid" />
+  <input id="pwd" type="password" />
+  <button type="submit">Login</button>
+</form>
   <script src="app.js"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 const express = require("express");
 const mysql = require("mysql2");
+const authMiddleware = require("./authMiddleware");
 
 const router = express.Router();
 
@@ -10,25 +11,23 @@ const db = mysql.createConnection({
   database: "voting_system"
 });
 
-/**
- * POST /vote
- * One-person-one-vote enforcement
- */
-router.post("/vote", (req, res) => {
-  const { user_id, candidate_id } = req.body;
+// 🔐 Protected vote route
+router.post("/vote", authMiddleware, (req, res) => {
+  const userId = req.user.userId;   // extracted from JWT
+  const { candidate_id } = req.body;
 
-  if (!user_id || !candidate_id) {
-    return res.status(400).send("Missing vote data");
+  if (!candidate_id) {
+    return res.status(400).send("Missing candidate");
   }
 
   db.query(
     "INSERT INTO votes (user_id, candidate_id) VALUES (?, ?)",
-    [user_id, candidate_id],
+    [userId, candidate_id],
     (err) => {
       if (err) {
-        return res.status(409).send("User has already voted");
+        return res.status(409).send("User already voted");
       }
-      res.send("Vote cast successfully");
+      res.send("Vote recorded successfully");
     }
   );
 });

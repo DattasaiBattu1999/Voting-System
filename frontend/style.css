@@ -1,134 +1,16 @@
-/* --- Global Variables & Reset --- */
+/* --- Global Variables --- */
 :root {
   --saffron: #FF9933;
   --white: #FFFFFF;
   --green: #138808;
   --navy: #000080;
   --primary: #4a90e2;
-  --danger: #e74c3c;
-  --text-dark: #2d3436;
-  --bg-light: #f4f7f6;
-  --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--bg-light);
-  color: var(--text-dark);
-  line-height: 1.6;
-}
-
-/* --- Page Layouts --- */
-/* Apply this class to <body> on Login, Admin, and Vote pages */
-.auth-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: var(--bg-gradient);
-  padding: 20px;
-}
-
-.container {
-  background: white;
-  padding: 2.5rem;
-  width: 100%;
-  max-width: 450px;
-  border-radius: 16px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-  text-align: center;
-}
-
-/* --- Navbar --- */
-.navbar {
-  background: white;
-  padding: 1rem 5%;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.logo { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--navy); }
-.nav-links a { text-decoration: none; margin-left: 20px; color: var(--text-dark); font-weight: 600; }
-.nav-btn { background: var(--green); color: white !important; padding: 8px 18px; border-radius: 5px; }
-
-/* --- Hero & Home Sections --- */
-.hero {
-  height: 60vh;
-  margin-top: 60px;
-  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1599939339740-42020296716a?auto=format&fit=crop&w=1350&q=80') center/cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: white;
-}
-
-.cta-btn { background: var(--saffron); color: white; padding: 12px 30px; border-radius: 30px; text-decoration: none; display: inline-block; margin-top: 20px; font-weight: 600; }
-
-.info-section { padding: 60px 10%; }
-.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-.info-card { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-
-/* --- Tables & Forms --- */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-}
-
-th, td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-th { background-color: #f8f9fa; color: var(--navy); }
-
-input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid #dfe6e9;
-  border-radius: 8px;
-}
-
-.primary-btn, .logout-btn {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.primary-btn { background: var(--primary); color: white; }
-.logout-btn { background: #dfe6e9; color: var(--text-dark); margin-top: 10px; }
-
-.footer { text-align: center; padding: 2rem; background: #2d3436; color: white; }
-
-:root {
-  --saffron: #FF9933;
-  --green: #138808;
-  --navy: #000080;
-  --primary: #4a90e2;
   --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --text-dark: #2d3436;
 }
 
 * {
-  box-sizing: border-box; /* Fixes sizing issues from content-box */
+  box-sizing: border-box; /* Fixed from content-box to prevent layout breaking */
   margin: 0;
   padding: 0;
 }
@@ -140,14 +22,23 @@ body {
   line-height: 1.6;
 }
 
-/* --- THE FIX: Specific class for Login/Admin centering --- */
+/* --- Layout for Login/Admin Center Pages --- */
 .auth-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   background: var(--bg-gradient);
-  padding-top: 80px; /* Space for the navbar */
+  padding-top: 80px; /* Space for fixed navbar */
+}
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  padding-top: 80px; /* Space for fixed navbar */
 }
 
 .container {
@@ -178,22 +69,23 @@ body {
 .nav-links a { text-decoration: none; margin-left: 20px; color: var(--text-dark); font-weight: 600; }
 .nav-btn { background: var(--green); color: white !important; padding: 8px 18px; border-radius: 5px; }
 
-/* --- Forms & Buttons --- */
-input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid #dfe6e9;
-  border-radius: 8px;
+/* --- Home Page Specific Sections --- */
+.hero {
+  height: 60vh;
+  margin-top: 60px;
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1599939339740-42020296716a?auto=format&fit=crop&w=1350&q=80') center/cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
 }
 
-.primary-btn {
-  width: 100%;
-  padding: 12px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
+.info-section { padding: 60px 10%; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+.info-card { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+/* --- Forms & Buttons --- */
+input { width: 100%; padding: 12px; margin-bottom: 1rem; border: 1px solid #dfe6e9; border-radius: 8px; }
+.primary-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.footer { text-align: center; padding: 2rem; background: #2d3436; color: white; }

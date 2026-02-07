@@ -1,23 +1,24 @@
 * {
-  box-sizing: border-box;
+  box-sizing: content-box;
 }
 
 body {
   margin: 0;
   font-family: "Segoe UI", Arial, sans-serif;
-  background: #f4f6f8;
+  background: #d99b31;
   height: 100vh;
+  width: auto;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .container {
-  background: #ffffff;
+  background: #c9eee0;
   padding: 40px;
-  width: 350px;
+  width: auto;
   border-radius: 10px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(47, 185, 9, 0.1);
   text-align: center;
 }
 

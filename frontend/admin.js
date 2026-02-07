@@ -1,7 +1,7 @@
 (function checkAdminAuth() {
   const token = localStorage.getItem("token");
   if (!token) {
-    alert("Unauthorized");
+    alert("Session expired. Please login again.");
     window.location.href = "index.html";
   }
 })();

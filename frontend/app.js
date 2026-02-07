@@ -1,13 +1,26 @@
+/*************************************************
+ * ROUTE PROTECTION (UX LEVEL)
+ *************************************************/
 (function checkAuth() {
   const token = localStorage.getItem("token");
-  if (!token && window.location.pathname.includes("vote.html")) {
+  const path = window.location.pathname;
+
+  // Protect voter page
+  if (path.includes("vote.html") && !token) {
     window.location.href = "index.html";
+  }
+
+  // Protect admin page
+  if (path.includes("admin.html") && !token) {
+    window.location.href = "admin-login.html";
   }
 })();
 
-// ================= LOGIN =================
+/*************************************************
+ * VOTER LOGIN
+ *************************************************/
 function login(event) {
-  if (event) event.preventDefault(); // 🔑 stop form submit
+  if (event) event.preventDefault();
 
   const nationalId = document.getElementById("nid").value;
   const password = document.getElementById("pwd").value;
@@ -21,30 +34,63 @@ function login(event) {
     })
   })
     .then(res => {
-      if (!res.ok) {
-        throw new Error("Invalid credentials");
-      }
+      if (!res.ok) throw new Error("Invalid credentials");
       return res.json();
     })
     .then(data => {
-      // ✅ redirect ONLY on success
-      localStorage.setItem("token", data.token);
-
-      if (data.role === "ADMIN") {
-        window.location.href = "/frontend/admin.html";
-      } else {
-        window.location.href = "/frontend/vote.html";
+      if (data.role !== "VOTER") {
+        alert("Please use Admin Login");
+        return;
       }
+
+      localStorage.setItem("token", data.token);
+      window.location.href = "vote.html";
     })
     .catch(err => {
       alert("Invalid credentials");
       console.error(err);
-      return; // 🔑 stop execution
     });
 }
 
+/*************************************************
+ * ADMIN LOGIN (SEPARATE PAGE)
+ *************************************************/
+function adminLogin(event) {
+  if (event) event.preventDefault();
 
-// ================= LOAD CANDIDATES =================
+  const nationalId = document.getElementById("adminId").value;
+  const password = document.getElementById("adminPwd").value;
+
+  fetch("http://localhost:3001/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      national_id: nationalId,
+      password: password
+    })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Invalid credentials");
+      return res.json();
+    })
+    .then(data => {
+      if (data.role !== "ADMIN") {
+        alert("Access denied. Admins only.");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      window.location.href = "admin.html";
+    })
+    .catch(err => {
+      alert("Invalid admin credentials");
+      console.error(err);
+    });
+}
+
+/*************************************************
+ * LOAD CANDIDATES (VOTER PAGE ONLY)
+ *************************************************/
 function loadCandidates() {
   fetch("http://localhost:3003/election/candidates")
     .then(res => res.json())
@@ -65,15 +111,17 @@ function loadCandidates() {
     .catch(err => console.error("Failed to load candidates", err));
 }
 
-// Automatically load candidates on vote.html
-loadCandidates();
+if (window.location.pathname.includes("vote.html")) {
+  loadCandidates();
+}
 
-// ================= VOTE =================
+/*************************************************
+ * VOTE (JWT PROTECTED)
+ *************************************************/
 function vote(candidateId) {
   disableVoteButtons();
 
   const token = localStorage.getItem("token");
-
   if (!token) {
     handleSessionExpired();
     return;
@@ -87,16 +135,12 @@ function vote(candidateId) {
     },
     body: JSON.stringify({ candidate_id: candidateId })
   })
-    .then(async res => {
+    .then(res => {
       if (res.status === 401) {
         handleSessionExpired();
         throw new Error("Session expired");
       }
-
-      if (!res.ok) {
-        throw new Error("Vote already cast");
-      }
-
+      if (!res.ok) throw new Error("Already voted");
       return res.text();
     })
     .then(() => {
@@ -105,14 +149,13 @@ function vote(candidateId) {
     .catch(err => {
       if (err.message !== "Session expired") {
         showMessage("❌ You have already voted", "error");
-        disableVoteButtons();
       }
     });
 }
 
-
-
-// ================= HELPERS =================
+/*************************************************
+ * UI HELPERS
+ *************************************************/
 function disableVoteButtons() {
   document.querySelectorAll(".vote-btn").forEach(btn => {
     btn.disabled = true;
@@ -123,27 +166,39 @@ function disableVoteButtons() {
 
 function showMessage(text, type) {
   let msg = document.getElementById("message");
-
   if (!msg) {
     msg = document.createElement("div");
     msg.id = "message";
     document.querySelector(".container").appendChild(msg);
   }
-
   msg.innerText = text;
   msg.className = `message ${type}`;
 }
 
-//================== SESSION EXPIRED HANDLER =================
+/*************************************************
+ * SESSION EXPIRY HANDLER
+ *************************************************/
 function handleSessionExpired() {
   localStorage.removeItem("token");
-  alert("Your session has expired. Please login again.");
-  window.location.href = "index.html";
+
+  if (window.location.pathname.includes("admin")) {
+    alert("Admin session expired. Please login again.");
+    window.location.href = "admin-login.html";
+  } else {
+    alert("Session expired. Please login again.");
+    window.location.href = "index.html";
+  }
 }
 
-
-// ================= LOGOUT =================
+/*************************************************
+ * LOGOUT
+ *************************************************/
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "index.html";
+
+  if (window.location.pathname.includes("admin")) {
+    window.location.href = "admin-login.html";
+  } else {
+    window.location.href = "index.html";
+  }
 }

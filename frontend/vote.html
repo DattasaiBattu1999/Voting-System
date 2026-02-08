@@ -5,18 +5,30 @@
   <title>Cast Your Vote</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="auth-page">
 
   <div class="container">
     <h1>Cast Your Vote</h1>
-    <p style="margin-bottom: 25px; color: #636e72;">Please select your candidate carefully.</p>
+    <p style="margin-bottom: 25px; color: #636e72;">
+      Please select your candidate carefully.
+    </p>
 
-    <div id="candidates" class="vote-buttons" style="display: flex; flex-direction: column; gap: 15px;">
-      </div>
+    <!-- Candidates will be loaded here -->
+    <div
+      id="candidates"
+      class="vote-buttons"
+      style="display: flex; flex-direction: column; gap: 15px;">
+    </div>
 
-    <button onclick="logout()" style="margin-top: 30px; border: 1px solid #dfe6e9; background: none;">Logout</button>
+    <button
+      onclick="logout()"
+      style="margin-top: 30px; border: 1px solid #dfe6e9; background: none;">
+      Logout
+    </button>
   </div>
 
+  <!-- ONLY load JS file -->
   <script src="app.js"></script>
 </body>
 </html>

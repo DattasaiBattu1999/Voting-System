@@ -5,6 +5,7 @@ const electionRoutes = require("./routes");
 const app = express();
 
 app.use(cors());
+app.use(express.json()); // 🔴 REQUIRED
 app.use("/election", electionRoutes);
 
 app.listen(3003, () => {

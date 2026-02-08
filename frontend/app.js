@@ -28,13 +28,10 @@ function login(event) {
   fetch("http://localhost:3001/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      national_id: nationalId,
-      password: password
-    })
+    body: JSON.stringify({ national_id: nationalId, password })
   })
     .then(res => {
-      if (!res.ok) throw new Error("Invalid credentials");
+      if (!res.ok) throw new Error();
       return res.json();
     })
     .then(data => {
@@ -42,18 +39,14 @@ function login(event) {
         alert("Please use Admin Login");
         return;
       }
-
       localStorage.setItem("token", data.token);
       window.location.href = "vote.html";
     })
-    .catch(err => {
-      alert("Invalid credentials");
-      console.error(err);
-    });
+    .catch(() => alert("Invalid credentials"));
 }
 
 /*************************************************
- * ADMIN LOGIN (SEPARATE PAGE)
+ * ADMIN LOGIN
  *************************************************/
 function adminLogin(event) {
   if (event) event.preventDefault();
@@ -64,13 +57,10 @@ function adminLogin(event) {
   fetch("http://localhost:3001/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      national_id: nationalId,
-      password: password
-    })
+    body: JSON.stringify({ national_id: nationalId, password })
   })
     .then(res => {
-      if (!res.ok) throw new Error("Invalid credentials");
+      if (!res.ok) throw new Error();
       return res.json();
     })
     .then(data => {
@@ -78,18 +68,17 @@ function adminLogin(event) {
         alert("Access denied. Admins only.");
         return;
       }
-
       localStorage.setItem("token", data.token);
       window.location.href = "admin.html";
     })
-    .catch(err => {
-      alert("Invalid admin credentials");
-      console.error(err);
-    });
+    .catch(() => alert("Invalid admin credentials"));
 }
 
 /*************************************************
- * LOAD CANDIDATES (VOTER PAGE ONLY)
+ * LOAD CANDIDATES
+ *************************************************/
+/*************************************************
+ * LOAD CANDIDATES (VOTER PAGE)
  *************************************************/
 function loadCandidates() {
   fetch("http://localhost:3003/election/candidates")
@@ -102,36 +91,58 @@ function loadCandidates() {
 
       data.forEach(c => {
         const btn = document.createElement("button");
-        btn.innerText = c.name;
-        btn.className = `vote-btn ${c.name.toLowerCase()}`;
+        btn.className = "vote-btn";
+
+        // ✅ THIS IS WHERE PARTY NAME GOES
+        btn.innerText = `${c.name} (${c.party})`;
+
         btn.onclick = () => vote(c.id);
         div.appendChild(btn);
       });
     })
-    .catch(err => console.error("Failed to load candidates", err));
+    .catch(() => {
+      console.error("Failed to load candidates");
+    });
 }
 
-if (window.location.pathname.includes("vote.html")) {
-  loadCandidates();
+
+/*************************************************
+ * CHECK IF USER ALREADY VOTED
+ *************************************************/
+function checkVoteStatus() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  fetch("http://localhost:3002/voter/status", {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.hasVoted) {
+        disableVoteButtons();
+        showMessage("✅ You have already voted. Thank you.", "success");
+      }
+    })
+    .catch(() => console.error("Vote status check failed"));
 }
 
 /*************************************************
- * VOTE (JWT PROTECTED)
+ * CAST VOTE
  *************************************************/
 function vote(candidateId) {
-  disableVoteButtons();
-
   const token = localStorage.getItem("token");
   if (!token) {
     handleSessionExpired();
     return;
   }
 
+  disableVoteButtons();
+
   fetch("http://localhost:3002/voter/vote", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify({ candidate_id: candidateId })
   })
@@ -140,14 +151,19 @@ function vote(candidateId) {
         handleSessionExpired();
         throw new Error("Session expired");
       }
-      if (!res.ok) throw new Error("Already voted");
+      if (res.status === 403) {
+        throw new Error("Election closed");
+      }
+      if (!res.ok) {
+        throw new Error("Already voted");
+      }
       return res.text();
     })
-    .then(() => {
-      showMessage("✅ Vote submitted successfully", "success");
-    })
+    .then(() => showMessage("✅ Vote submitted successfully", "success"))
     .catch(err => {
-      if (err.message !== "Session expired") {
+      if (err.message === "Election closed") {
+        showMessage("🚫 Election is CLOSED", "error");
+      } else if (err.message !== "Session expired") {
         showMessage("❌ You have already voted", "error");
       }
     });
@@ -176,17 +192,16 @@ function showMessage(text, type) {
 }
 
 /*************************************************
- * SESSION EXPIRY HANDLER
+ * SESSION EXPIRY
  *************************************************/
 function handleSessionExpired() {
   localStorage.removeItem("token");
+  alert("Session expired. Please login again.");
 
   if (window.location.pathname.includes("admin")) {
-    alert("Admin session expired. Please login again.");
     window.location.href = "admin-login.html";
   } else {
-    alert("Session expired. Please login again.");
-    window.location.href = "index.html";
+    window.location.href = "home.html";
   }
 }
 
@@ -195,10 +210,36 @@ function handleSessionExpired() {
  *************************************************/
 function logout() {
   localStorage.removeItem("token");
+  window.location.href = window.location.pathname.includes("admin")
+    ? "admin-login.html"
+    : "home.html";
+}
 
-  if (window.location.pathname.includes("admin")) {
-    window.location.href = "admin-login.html";
-  } else {
-    window.location.href = "index.html";
-  }
+/*************************************************
+ * PAGE INIT (CORRECT & CLEAN)
+ *************************************************/
+if (window.location.pathname.includes("vote.html")) {
+  initializeVotePage();
+}
+
+function initializeVotePage() {
+  fetch("http://localhost:3003/election/status")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("candidates");
+
+      if (data.status !== "OPEN") {
+        container.innerHTML = `
+          <p style="color:red; font-weight:bold;">
+            🚫 Election is currently CLOSED
+          </p>
+        `;
+        return;
+      }
+
+      // Election is OPEN
+      loadCandidates();
+      checkVoteStatus();
+    })
+    .catch(() => console.error("Failed to initialize vote page"));
 }

@@ -3,28 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="./style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="auth-page"> <div class="container" style="max-width: 600px;">
+
+<body class="gradient-bg">
+
+  <div class="dashboard-card">
     <h1>Admin Dashboard</h1>
-    <p style="color: #636e72; font-size: 0.9rem;">Live Election Statistics</p>
 
-    <table id="resultsTable">
-      <thead>
-        <tr>
-          <th>Candidate</th>
-          <th>Total Votes</th>
-        </tr>
-      </thead>
-      <tbody>
-        </tbody>
-    </table>
+    <!-- Add Candidate -->
+    <div class="section">
+      <h3>Add Candidate</h3>
+      <input
+        type="text"
+        id="candidateName"
+        placeholder="Candidate Name"
+      />
+      <input
+        type="text"
+        id="partyName"
+        placeholder="Party Name"
+      />
+      <button class="primary-btn" onclick="addCandidate()">
+        Add Candidate
+      </button>
+    </div>
 
-    <button class="logout-btn" onclick="logout()">Secure Logout</button>
+    <!-- Candidate List -->
+    <div class="section">
+      <h3>Candidates</h3>
+      <ul id="candidateList" class="candidate-list"></ul>
+    </div>
+
+    <!-- Results -->
+    <div class="section">
+      <h3>Live Results</h3>
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Candidate</th>
+            <th>Votes</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 
-  <script src="./admin.js"></script>
-  <script src="./app.js"></script>
+  <script src="admin.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
